@@ -31,9 +31,7 @@ struct Article: Codable, Hashable, Sendable {
     var articleURL: URL? { URL(string: url) }
 
     var timeAgo: String {
-        let iso = ISO8601DateFormatter()
-        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        guard let date = iso.date(from: publishedAt) else { return "" }
+        guard let date = Article.parseDate(publishedAt) else { return "" }
         let diff = Int(Date().timeIntervalSince(date))
         switch diff {
         case 0..<60: return "Just now"
@@ -44,13 +42,21 @@ struct Article: Codable, Hashable, Sendable {
     }
 
     var formattedDate: String {
-        let iso = ISO8601DateFormatter()
-        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        guard let date = iso.date(from: publishedAt) else { return publishedAt }
+        guard let date = Article.parseDate(publishedAt) else { return publishedAt }
         let f = DateFormatter()
         f.dateStyle = .medium
         f.timeStyle = .none
         return f.string(from: date)
+    }
+
+    private static func parseDate(_ string: String) -> Date? {
+        let withFractional = ISO8601DateFormatter()
+        withFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        let withoutFractional = ISO8601DateFormatter()
+        withoutFractional.formatOptions = [.withInternetDateTime]
+
+        return withFractional.date(from: string) ?? withoutFractional.date(from: string)
     }
 
     func hash(into hasher: inout Hasher) { hasher.combine(url) }
