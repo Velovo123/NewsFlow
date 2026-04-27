@@ -20,28 +20,35 @@ final class FeedViewController: UIViewController, UICollectionViewDelegate {
     private var collectionView: UICollectionView!
     private let categoryScrollView = UIScrollView()
     private let categoryStack = UIStackView()
+    private let titleLabel = UILabel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = Theme.Color.background
         setupNavBar()
+        setupTitleLabel()
         setupCategoryBar()
         setupCollectionView()
         setupDataSource()
         bindViewModel()
         viewModel.fetchArticles()
     }
-    
+
     private func setupNavBar() {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = Theme.Color.barBackground
-        appearance.titleTextAttributes = [
-            .foregroundColor: Theme.Color.textPrimary,
-            .font: Theme.Font.medium(17)
-        ]
-        navigationItem.standardAppearance = appearance
-        navigationItem.scrollEdgeAppearance = appearance
+        navigationController?.navigationBar.isHidden = true
+    }
+
+    private func setupTitleLabel() {
+        titleLabel.text = "NewsFlow"
+        titleLabel.font = Theme.Font.semibold(22)
+        titleLabel.textColor = Theme.Color.accent
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(titleLabel)
+
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
+        ])
     }
 
     private func bindViewModel() {
@@ -79,7 +86,7 @@ final class FeedViewController: UIViewController, UICollectionViewDelegate {
         categoryScrollView.addSubview(categoryStack)
 
         NSLayoutConstraint.activate([
-            categoryScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            categoryScrollView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
             categoryScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             categoryScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             categoryScrollView.heightAnchor.constraint(equalToConstant: 44),
@@ -206,7 +213,6 @@ final class FeedViewController: UIViewController, UICollectionViewDelegate {
             layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(100)),
             subitems: [item]
         )
-        let section = NSCollectionLayoutSection(group: group)
-        return section
+        return NSCollectionLayoutSection(group: group)
     }
 }
